@@ -1,6 +1,6 @@
 # Redis stores for Rack::Cache
 
-__`redis-rack-cache`__ provides a Redis backed store for __Rack::Cache__, an HTTP cache. See the main [redis-store readme](https://github.com/jodosha/redis-store) for general guidelines.
+__`redis-rack-cache`__ provides a Redis backed store for __Rack::Cache__, an HTTP cache. See the main [redis-store readme](https://github.com/redis-store/redis-store) for general guidelines.
 
 ## Installation
 
@@ -11,7 +11,7 @@ gem 'redis-rack-cache'
 
 ### Usage
 
-If you are using redis-store with Rails, consider using the [redis-rails gem](https://github.com/jodosha/redis-store/tree/master/redis-rails) instead. For standalone usage:
+If you are using redis-store with Rails, consider using the [redis-rails gem](https://github.com/redis-store/redis-rails) instead. For standalone usage:
 
 ```ruby
 # config.ru
@@ -28,7 +28,7 @@ use Rack::Cache,
 
 ```shell
 gem install bundler
-git clone git://github.com/jodosha/redis-rack-cache.git
+git clone git://github.com/redis-store/redis-rack-cache.git
 cd redis-rack-cache
 bundle install
 bundle exec rake
