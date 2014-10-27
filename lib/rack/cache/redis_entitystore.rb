@@ -39,7 +39,7 @@ module Rack
           if ttl.zero?
             [key, size] if cache.set(key, buf.string)
           else
-            [key, size] if cache.setex(key, ttl, buf.string)
+            [key, size] if cache.set(key, buf.string, :expire_in => ttl)
           end
         end
 
