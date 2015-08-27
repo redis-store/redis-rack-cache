@@ -2,6 +2,7 @@ require 'digest/sha1'
 require 'rack/utils'
 require 'rack/cache/key'
 require 'rack/cache/metastore'
+require 'redis-rack-cache/version'
 
 module Rack
   module Cache
@@ -30,11 +31,8 @@ module Rack
         end
 
         def write(key, entries, ttl=0)
-          if ttl.zero?
-            cache.set(hexdigest(key), entries)
-          else
-            cache.setex(hexdigest(key), ttl, entries)
-          end
+          ttl = ::Redis::Rack::Cache::DEFAULT_TTL if ttl.zero?
+          cache.setex(hexdigest(key), ttl, entries)
         end
 
         def purge(key)

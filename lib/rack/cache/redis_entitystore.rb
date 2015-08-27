@@ -1,4 +1,5 @@
 require 'rack/cache/entitystore'
+require 'redis-rack-cache/version'
 
 module Rack
   module Cache
@@ -36,11 +37,8 @@ module Rack
           buf = StringIO.new
           key, size = slurp(body){|part| buf.write(part) }
 
-          if ttl.zero?
-            [key, size] if cache.set(key, buf.string)
-          else
-            [key, size] if cache.setex(key, ttl, buf.string)
-          end
+          ttl = ::Redis::Rack::Cache::DEFAULT_TTL if ttl.zero?
+          [key, size] if cache.setex(key, ttl, buf.string)
         end
 
         def purge(key)
