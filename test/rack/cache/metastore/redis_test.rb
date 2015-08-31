@@ -113,6 +113,13 @@ describe Rack::Cache::MetaStore::Redis do
     store_simple_entry('/bad', { 'SOME_THING' => Proc.new {} })
   end
 
+  it 'takes a ttl parameter for #write' do
+    @store.write('/foo', [[{},{}]], 123)
+    data = @store.read('/foo')
+    data.must_equal([[{},{}]])
+  end
+
+
   # Abstract methods ===========================================================
 
   it 'stores a cache entry' do
