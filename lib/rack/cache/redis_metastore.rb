@@ -2,7 +2,7 @@ require 'digest/sha1'
 require 'rack/utils'
 require 'rack/cache/key'
 require 'rack/cache/metastore'
-require 'redis-rack-cache/version'
+require 'redis-rack-cache/constants'
 
 module Rack
   module Cache
