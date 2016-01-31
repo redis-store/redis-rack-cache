@@ -1,4 +1,4 @@
-require 'rack/cache/entitystore'
+require 'rack/cache/entity_store'
 require 'redis-rack-cache/constants'
 
 module Rack
