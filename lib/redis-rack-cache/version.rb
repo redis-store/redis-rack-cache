@@ -1,7 +1,7 @@
 class Redis
   module Rack
     module Cache
-      VERSION = '1.2.4'
+      VERSION = '2.0.0.pre'
     end
   end
 end
