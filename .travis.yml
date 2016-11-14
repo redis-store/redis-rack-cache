@@ -2,11 +2,9 @@ language: ruby
 before_install: gem install bundler
 script: 'bundle exec rake'
 rvm:
-  - 1.9.3
-  - 2.0.0
+  - 2.2.2
+  - 2.3.1
   - ruby-head
-  - rbx-19mode
-  - jruby-19mode
   - jruby-head
 
 matrix:
