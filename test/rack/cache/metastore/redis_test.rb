@@ -13,6 +13,31 @@ describe Rack::Cache::MetaStore::Redis do
     @entity_store.cache.flushall
   end
 
+  it "has a default_tll of 1 year" do
+    @store.class.default_ttl.must_equal(86_400 * 365)
+    @entity_store.class.default_ttl.must_equal(86_400 * 365)
+  end
+
+  it "respects the default_tll options" do
+    @store = ::Rack::Cache::MetaStore::Redis.new({ :host => "localhost" }, { :default_ttl => 120 })
+    @store.class.default_ttl.must_equal(120)
+
+    @entity_store = ::Rack::Cache::EntityStore::Redis.new({ :host => "localhost" }, { :default_ttl => 120 })
+    @entity_store.class.default_ttl.must_equal(120)
+  end
+
+  it "properly delegates the TTL to redis" do
+    key = '/test/'
+    @store = ::Rack::Cache::MetaStore::Redis.new({ :host => "localhost" }, { :default_ttl => 120 })
+
+    @store.write(key, [[{},{}]])
+    assert @store.cache.ttl(key) <= 120
+
+    @entity_store = ::Rack::Cache::EntityStore::Redis.new({ :host => "localhost" }, { :default_ttl => 120 })
+    key, size = @entity_store.write(['She rode to the devil,'])
+    assert @entity_store.cache.ttl(key) <= 120
+  end
+
   it "has the class referenced by homonym constant" do
     ::Rack::Cache::MetaStore::REDIS.must_equal(::Rack::Cache::MetaStore::Redis)
   end
