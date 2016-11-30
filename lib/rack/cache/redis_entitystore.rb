@@ -1,4 +1,5 @@
 require 'rack/cache/entity_store'
+require 'redis-rack-cache/constants'
 
 module Rack
   module Cache
@@ -6,10 +7,7 @@ module Rack
       class RedisBase < self
         # The underlying ::Redis instance used to communicate with the Redis daemon.
         attr_reader :cache
-
-        class << self
-          attr_accessor :default_ttl
-        end
+        attr_accessor :default_ttl
 
         extend Rack::Utils
 
@@ -18,15 +16,15 @@ module Rack
           data && [data]
         end
 
-        def self.resolve(uri, options = {})
-          new ::Redis::Store::Factory.resolve(uri.to_s), options
+        def self.resolve(uri)
+          new ::Redis::Store::Factory.resolve(uri.to_s)
         end
       end
 
       class Redis < RedisBase
         def initialize(server, options = {})
           @cache = ::Redis::Store::Factory.create(server)
-          self.class.default_ttl = options[:default_ttl] || 86_400 * 365 # 1 year
+          self.default_ttl = options[:default_ttl] || ::Redis::Rack::Cache::DEFAULT_TTL
         end
 
         def exist?(key)
@@ -41,7 +39,7 @@ module Rack
           buf = StringIO.new
           key, size = slurp(body){|part| buf.write(part) }
 
-          ttl = self.class.default_ttl if ttl.zero?
+          ttl = self.default_ttl if ttl.zero?
           [key, size] if cache.setex(key, ttl, buf.string)
         end
 
