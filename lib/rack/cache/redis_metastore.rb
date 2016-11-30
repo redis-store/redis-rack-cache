@@ -2,6 +2,7 @@ require 'digest/sha1'
 require 'rack/utils'
 require 'rack/cache/key'
 require 'rack/cache/meta_store'
+require 'redis-rack-cache/constants'
 
 module Rack
   module Cache
@@ -11,13 +12,10 @@ module Rack
 
         # The Redis::Store object used to communicate with the Redis daemon.
         attr_reader :cache
+        attr_accessor :default_ttl
 
-        class << self
-          attr_accessor :default_ttl
-        end
-
-        def self.resolve(uri, options = {})
-          new ::Redis::Store::Factory.resolve(uri.to_s), options
+        def self.resolve(uri)
+          new ::Redis::Store::Factory.resolve(uri.to_s)
         end
       end
 
@@ -27,7 +25,7 @@ module Rack
 
         def initialize(server, options = {})
           @cache = ::Redis::Store::Factory.create(server)
-          self.class.default_ttl = options[:default_ttl] || 86_400 * 365 # 1 year
+          self.default_ttl = options[:default_ttl] || ::Redis::Rack::Cache::DEFAULT_TTL
         end
 
         def read(key)
@@ -35,7 +33,7 @@ module Rack
         end
 
         def write(key, entries, ttl=0)
-          ttl = self.class.default_ttl if ttl.zero?
+          ttl = self.default_ttl if ttl.zero?
           cache.setex(hexdigest(key), ttl, entries)
         end
 

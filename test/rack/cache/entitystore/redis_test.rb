@@ -11,13 +11,9 @@ describe Rack::Cache::EntityStore::Redis do
     @store = ::Rack::Cache::EntityStore::Redis.new :host => 'localhost'
   end
 
-  it 'has a default_tll of 1 year' do
-    @store.class.default_ttl.must_equal(86_400 * 365)
-  end
-
   it 'respects the default_tll options' do
     @store = ::Rack::Cache::EntityStore::Redis.new({ :host => 'localhost' }, { :default_ttl => 120 })
-    @store.class.default_ttl.must_equal(120)
+    @store.default_ttl.must_equal(120)
   end
 
   it 'properly delegates the TTL to redis' do
