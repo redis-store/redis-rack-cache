@@ -1,5 +1,8 @@
 # Redis stores for Rack::Cache
 
+[![Build Status](https://travis-ci.org/redis-store/redis-rack-cache.svg?branch=master)](https://travis-ci.org/redis-store/redis-rack-cache)
+[![Gem Version](https://badge.fury.io/rb/redis-rack-cache.png)](http://badge.fury.io/rb/redis-rack-cache) [![Build Status](https://secure.travis-ci.org/redis-store/redis-rack-cache.png?branch=master)](http://travis-ci.org/jodosha/redis-rack-cache?branch=master) [![Code Climate](https://codeclimate.com/github/jodosha/redis-store.png)](https://codeclimate.com/github/redis-store/redis-rack-cache)
+
 __`redis-rack-cache`__ provides a Redis backed store for __Rack::Cache__, an HTTP cache. See the main [redis-store readme](https://github.com/redis-store/redis-store) for general guidelines.
 
 ## Installation
@@ -24,21 +27,23 @@ use Rack::Cache,
   entitystore: 'redis://localhost:6380/0/entitystore'
 ```
 
-## Running tests
+## Development
 
-```shell
-gem install bundler
-git clone git://github.com/redis-store/redis-rack-cache.git
+First, get the project set up on your local machine:
+
+```bash
+git clone https://github.com/redis-store/redis-rack-cache.git
 cd redis-rack-cache
 bundle install
-bundle exec rake
+```
+
+You can run the following command to execute the test suite:
+
+```bash
+bundle exec rake test
 ```
 
 If you are on **Snow Leopard** you have to run `env ARCHFLAGS="-arch x86_64" bundle exec rake`
-
-## Status
-
-[![Gem Version](https://badge.fury.io/rb/redis-rack-cache.png)](http://badge.fury.io/rb/redis-rack-cache) [![Build Status](https://secure.travis-ci.org/redis-store/redis-rack-cache.png?branch=master)](http://travis-ci.org/jodosha/redis-rack-cache?branch=master) [![Code Climate](https://codeclimate.com/github/jodosha/redis-store.png)](https://codeclimate.com/github/redis-store/redis-rack-cache)
 
 ## Copyright
 

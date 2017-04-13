@@ -1,6 +1,9 @@
 source 'https://rubygems.org'
 gemspec
 
-# if ::File.directory?(gem_path = '../redis-store')
-#   gem 'redis-store', '~> 1.3.0', path: gem_path
-# end
+git_source :github do |name|
+  repo = name =~ %r{/} ? name : "#{name}/#{name}"
+  "https://github.com/#{repo}.git"
+end
+
+gem 'redis-store-testing', github: 'redis-store/testing'
