@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ['Luca Guidi']
   s.email       = ['me@lucaguidi.com']
   s.homepage    = 'http://redis-store.org/redis-rack-cache'
-  s.summary     = %q{Redis for Rack::Cache}
-  s.description = %q{Redis for Rack::Cache}
+  s.summary     = %q{A Redis backend store for Rack::Cache}
+  s.description = s.summary
   s.license     = 'MIT'
 
   s.rubyforge_project = 'redis-rack-cache'
@@ -19,12 +19,13 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ['lib']
 
-  s.add_dependency 'redis-store', '< 1.4', '>= 1.2'
-  s.add_dependency 'rack-cache',  '< 1.7', '>= 1.6'
+  s.add_dependency 'redis-store', '>= 1.2', '< 2'
+  s.add_dependency 'rack-cache',  '>= 1.6', '< 2'
 
   s.add_development_dependency 'rake',     '~> 10'
   s.add_development_dependency 'bundler',  '~> 1.3'
   s.add_development_dependency 'mocha',    '~> 0.14.0'
   s.add_development_dependency 'minitest', '~> 5'
   s.add_development_dependency 'redis-store-testing'
+  s.add_development_dependency 'appraisal'
 end
