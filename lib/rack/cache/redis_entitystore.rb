@@ -7,6 +7,7 @@ module Rack
       class RedisBase < self
         # The underlying ::Redis instance used to communicate with the Redis daemon.
         attr_reader :cache
+        attr_accessor :default_ttl
 
         extend Rack::Utils
 
@@ -23,6 +24,7 @@ module Rack
       class Redis < RedisBase
         def initialize(server, options = {})
           @cache = ::Redis::Store::Factory.create(server)
+          self.default_ttl = options[:default_ttl] || ::Redis::Rack::Cache::DEFAULT_TTL
         end
 
         def exist?(key)
@@ -37,7 +39,7 @@ module Rack
           buf = StringIO.new
           key, size = slurp(body){|part| buf.write(part) }
 
-          ttl = ::Redis::Rack::Cache::DEFAULT_TTL if ttl.zero?
+          ttl = self.default_ttl if ttl.zero?
           [key, size] if cache.setex(key, ttl, buf.string)
         end
 

@@ -12,6 +12,7 @@ module Rack
 
         # The Redis::Store object used to communicate with the Redis daemon.
         attr_reader :cache
+        attr_accessor :default_ttl
 
         def self.resolve(uri)
           new ::Redis::Store::Factory.resolve(uri.to_s)
@@ -24,6 +25,7 @@ module Rack
 
         def initialize(server, options = {})
           @cache = ::Redis::Store::Factory.create(server)
+          self.default_ttl = options[:default_ttl] || ::Redis::Rack::Cache::DEFAULT_TTL
         end
 
         def read(key)
@@ -31,7 +33,7 @@ module Rack
         end
 
         def write(key, entries, ttl=0)
-          ttl = ::Redis::Rack::Cache::DEFAULT_TTL if ttl.zero?
+          ttl = self.default_ttl if ttl.zero?
           cache.setex(hexdigest(key), ttl, entries)
         end
 
