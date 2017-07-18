@@ -1,25 +1,13 @@
 require 'digest/sha1'
-require 'rack/utils'
 require 'rack/cache/key'
 require 'rack/cache/meta_store'
 require 'redis-rack-cache/constants'
+require 'rack/cache/redis_base'
 
 module Rack
   module Cache
     class MetaStore
-      class RedisBase < self
-        extend Rack::Utils
-
-        # The Redis::Store object used to communicate with the Redis daemon.
-        attr_reader :cache
-        attr_accessor :default_ttl
-
-        def self.resolve(uri)
-          new ::Redis::Store::Factory.resolve(uri.to_s)
-        end
-      end
-
-      class Redis < RedisBase
+      class Redis < self
         # The Redis instance used to communicated with the Redis daemon.
         attr_reader :cache
 
