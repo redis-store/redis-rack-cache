@@ -8,14 +8,6 @@ module Rack
       class Redis < self
         include RedisBase
 
-        attr_reader :default_ttl
-
-        def initialize(server, options = {})
-          @cache = ::Redis::Store::Factory.create(server)
-          @options = options
-          @options[:default_ttl] ||= ::Redis::Rack::Cache::DEFAULT_TTL
-        end
-
         def exist?(key)
           cache.exists key
         end
@@ -27,9 +19,10 @@ module Rack
         def write(body, ttl=0)
           buf = StringIO.new
           key, size = slurp(body) {|part| buf.write(part) }
-          ttl = @options[:default_ttl] if ttl.zero?
+          ttl = ttl.to_i.zero? ? default_ttl : ttl
 
-          [key, size] if cache.setex(key, ttl, buf.string)
+          return unless cache.setex(key, ttl, buf.string)
+          [key, size]
         end
 
         def purge(key)
