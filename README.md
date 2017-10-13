@@ -15,7 +15,8 @@ gem 'redis-rack-cache'
 ## Usage
 
 If you are using redis-store with Rails, consider using the [redis-rails gem](https://github.com/redis-store/redis-rails) instead.
-However, configuration can be done a such:
+
+In a Rails app, you can configure your `Rack::Cache` stores like this:
 
 ```ruby
 # config/application.rb
@@ -29,7 +30,7 @@ module MyApplication
 end
 ```
 
-For standalone usage:
+For standalone usage (in non-Rails apps):
 
 ```ruby
 # config.ru
