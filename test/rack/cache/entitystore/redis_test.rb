@@ -11,6 +11,17 @@ describe Rack::Cache::EntityStore::Redis do
     @store = ::Rack::Cache::EntityStore::Redis.new :host => 'localhost'
   end
 
+  it 'respects the default_tll options' do
+    @store = ::Rack::Cache::EntityStore::Redis.new({ :host => 'localhost' }, { :default_ttl => 120 })
+    @store.default_ttl.must_equal(120)
+  end
+
+  it 'properly delegates the TTL to redis' do
+    @store = ::Rack::Cache::EntityStore::Redis.new({ :host => 'localhost' }, { :default_ttl => 120 })
+    key, size = @store.write(['She rode to the devil,'])
+    assert @store.cache.ttl(key) <= 120
+  end
+
   it 'has the class referenced by homonym constant' do
     ::Rack::Cache::EntityStore::REDIS.must_equal(::Rack::Cache::EntityStore::Redis)
   end

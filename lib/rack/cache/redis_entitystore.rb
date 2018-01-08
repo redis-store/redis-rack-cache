@@ -1,29 +1,12 @@
 require 'rack/cache/entity_store'
 require 'redis-rack-cache/constants'
+require 'rack/cache/redis_base'
 
 module Rack
   module Cache
     class EntityStore
-      class RedisBase < self
-        # The underlying ::Redis instance used to communicate with the Redis daemon.
-        attr_reader :cache
-
-        extend Rack::Utils
-
-        def open(key)
-          data = read(key)
-          data && [data]
-        end
-
-        def self.resolve(uri)
-          new ::Redis::Store::Factory.resolve(uri.to_s)
-        end
-      end
-
-      class Redis < RedisBase
-        def initialize(server, options = {})
-          @cache = ::Redis::Store::Factory.create(server)
-        end
+      class Redis < self
+        include RedisBase
 
         def exist?(key)
           cache.exists key
@@ -35,10 +18,11 @@ module Rack
 
         def write(body, ttl=0)
           buf = StringIO.new
-          key, size = slurp(body){|part| buf.write(part) }
+          key, size = slurp(body) {|part| buf.write(part) }
+          ttl = ttl.to_i.zero? ? default_ttl : ttl
 
-          ttl = ::Redis::Rack::Cache::DEFAULT_TTL if ttl.zero?
-          [key, size] if cache.setex(key, ttl, buf.string)
+          return unless cache.setex(key, ttl, buf.string)
+          [key, size]
         end
 
         def purge(key)

@@ -14,7 +14,23 @@ gem 'redis-rack-cache'
 
 ## Usage
 
-If you are using redis-store with Rails, consider using the [redis-rails gem](https://github.com/redis-store/redis-rails) instead. For standalone usage:
+If you are using redis-store with Rails, consider using the [redis-rails gem](https://github.com/redis-store/redis-rails) instead.
+
+In a Rails app, you can configure your `Rack::Cache` stores like this:
+
+```ruby
+# config/application.rb
+module MyApplication
+  class Application < Rails::Application
+    config.action_dispatch.rack_cache = {
+      metastore: ::Rack::Cache::EntityStore::Redis.new('redis://localhost:6379/0/metastore', default_ttl: 10.days.to_i),
+      entity_store: ::Rack::Cache::MetaStore::Redis.new('redis://localhost:6380/0/entitystore', default_ttl: 120.days.to_i)
+    }
+  end
+end
+```
+
+For standalone usage (in non-Rails apps):
 
 ```ruby
 # config.ru
