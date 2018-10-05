@@ -31,7 +31,7 @@ module Rack
         end
       end
 
-      REDIS = Redis
+      REDIS = REDISS = Redis
     end
   end
 end

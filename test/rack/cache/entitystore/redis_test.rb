@@ -31,6 +31,10 @@ describe Rack::Cache::EntityStore::Redis do
     cache.must_be_kind_of(::Redis)
     cache.id.must_equal("redis://127.0.0.1:6379/0")
 
+    cache = ::Rack::Cache::EntityStore::Redis.resolve(uri("rediss://127.0.0.1")).cache
+    cache.must_be_kind_of(::Redis)
+    cache.instance_variable_get(:@client).scheme.must_equal('rediss')
+
     cache = ::Rack::Cache::EntityStore::Redis.resolve(uri("redis://127.0.0.1:6380")).cache
     cache.id.must_equal("redis://127.0.0.1:6380/0")
 
