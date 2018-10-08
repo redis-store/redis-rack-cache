@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ['lib']
 
-  s.add_dependency 'redis-store', '>= 1.2', '< 2'
+  s.add_dependency 'redis-store', '>= 1.6', '< 2'
   s.add_dependency 'rack-cache',  '>= 1.6', '< 2'
 
   s.add_development_dependency 'rake',     '~> 10'
