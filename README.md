@@ -5,6 +5,12 @@
 
 __`redis-rack-cache`__ provides a Redis backed store for __Rack::Cache__, an HTTP cache. See the main [redis-store readme](https://github.com/redis-store/redis-store) for general guidelines.
 
+**NOTE:** This gem is necessary in addition to
+[redis-rails](https://github.com/redis-store/redis-rails) if you use
+Redis to store the Rails cache. `redis-rails` does not pull in this gem
+by default since not all applications use `Rack::Cache` as their HTTP
+cache.
+
 ## Installation
 
 ```ruby
@@ -14,19 +20,30 @@ gem 'redis-rack-cache'
 
 ## Usage
 
-If you are using redis-store with Rails, consider using the [redis-rails gem](https://github.com/redis-store/redis-rails) instead.
-
 In a Rails app, you can configure your `Rack::Cache` stores like this:
 
 ```ruby
-# config/application.rb
-module MyApplication
-  class Application < Rails::Application
-    config.action_dispatch.rack_cache = {
-      metastore: ::Rack::Cache::EntityStore::Redis.new('redis://localhost:6379/0/metastore', default_ttl: 10.days.to_i),
-      entity_store: ::Rack::Cache::MetaStore::Redis.new('redis://localhost:6380/0/entitystore', default_ttl: 120.days.to_i)
-    }
-  end
+# config/environments/production.rb
+Rails.application.configure do
+  config.action_dispatch.rack_cache = {
+    metastore: "#{Rails.credentials.redis_url}/1/rack_cache_metastore",
+    entitystore: "#{Rails.credentials.redis_url}/1/rack_cache_entitystore"
+    # NOTE: `:meta_store` and `:entity_store` are also supported.
+  }
+end
+```
+
+For more complicated setups, like when using custom options, the
+following syntax can also be used:
+
+```ruby
+# config/environments/production.rb
+Rails.application.configure do
+  config.action_dispatch.rack_cache = {
+    meta_store: ::Rack::Cache::MetaStore::Redis.new("#{Rails.credentials.redis_url}/1/rack_cache_metastore", default_ttl: 10.days.to_i),
+    entity_store: ::Rack::Cache::EntityStore::Redis.new("#{Rails.credentials.redis_url}/1/rack_cache_entitystore", default_ttl: 120.days.to_i)
+    # NOTE: `:metastore` and `:entitystore` are also supported.
+  }
 end
 ```
 
