@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rack-cache',  '>= 1.6', '< 2'
 
   s.add_development_dependency 'rake',     '~> 10'
-  s.add_development_dependency 'bundler', '~> 2'
+  s.add_development_dependency 'bundler', '> 1', '< 3'
   s.add_development_dependency 'mocha',    '~> 0.14.0'
   s.add_development_dependency 'minitest', '~> 5'
   s.add_development_dependency 'redis-store-testing', '~> 0'
