@@ -1,4 +1,5 @@
 require 'rack/utils'
+require 'rack/cache/options'
 
 module Rack
   module Cache
@@ -10,6 +11,8 @@ module Rack
 
           attr_reader :cache, :options, :default_ttl
         end
+
+        Rack::Cache::Options.option_accessor :compress
       end
 
       module ClassMethods
