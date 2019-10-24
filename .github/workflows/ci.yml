@@ -1,0 +1,39 @@
+name: CI
+on: [push]
+strategy:
+  matrix:
+    ruby:
+      - 2.2.x
+      - 2.3.x
+      - 2.4.x
+      - 2.5.x
+      - 2.6.x
+      - ruby-head
+      - jruby-head
+    rack_cache:
+      - 1.6
+      - 1.7
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v1
+      - name: Install Ruby
+        uses: actions/setup-ruby@v1
+        with:
+          version: ${{ matrix.ruby }}
+      - name: Install Dependencies
+        env:
+          BUNDLE_JOBS: 4
+          BUNDLE_RETRY: 3
+          BUNDLE_GEMFILE: gemfiles/rack_cache_${{ matrix.rack_cache }}.gemfile
+        run: bundle install
+      - name: Build Gem
+        env:
+          BUNDLE_GEMFILE: gemfiles/rack_cache_${{ matrix.rack_cache }}.gemfile
+        run: bundle exec rake build
+      - name: Run Tests
+        env:
+          BUNDLE_GEMFILE: gemfiles/rack_cache_${{ matrix.rack_cache }}.gemfile
+        run: bundle exec rake
