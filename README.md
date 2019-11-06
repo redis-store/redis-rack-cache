@@ -73,10 +73,10 @@ To enable this feature, pass the `:compress` option when configuring
 
 ```ruby
 Rails.application.configure do
-  Redis::Rack::Cache.compression = true
   config.action_dispatch.rack_cache = {
     metastore: "#{Rails.credentials.redis_url}/1",
-    entitystore: "#{Rails.credentials.redis_url}/2"
+    entitystore: "#{Rails.credentials.redis_url}/2",
+    compress: true
   }
 end
 ```
@@ -93,10 +93,10 @@ compression and decompression like this:
 
 ```ruby
 Rails.application.configure do
-  Redis::Rack::Cache.compression = Snappy
   config.action_dispatch.rack_cache = {
     metastore: "#{Rails.credentials.redis_url}/1",
-    entitystore: "#{Rails.credentials.redis_url}/2"
+    entitystore: "#{Rails.credentials.redis_url}/2",
+    compress: Snappy
   }
 end
 ```

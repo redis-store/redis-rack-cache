@@ -12,10 +12,6 @@ describe Rack::Cache::EntityStore::Redis do
     @body = File.read('test/fixtures/lorem.txt')
   end
 
-  after do
-    Redis::Rack::Cache.compression = nil
-  end
-
   it 'stores raw data by default' do
     key, _size = @store.write [@body]
 
@@ -24,7 +20,7 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'compresses data with deflate' do
-    Redis::Rack::Cache.compression = :deflate
+    @store.options[:compress] = :deflate
     key, _size = @store.write [@body]
 
     key.wont_be_nil
@@ -32,18 +28,18 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'compresses data with gzip' do
-    Redis::Rack::Cache.compression = :gzip
+    @store.options[:compress] = :gzip
     key, _size = @store.write [@body]
 
     key.wont_be_nil
 
-    Redis::Rack::Cache.compression = true
+    @store.options[:compress] = true
 
     @store.read(key).must_equal(@body)
   end
 
   it 'compresses data with custom tool' do
-    Redis::Rack::Cache.compression = Snappy
+    @store.options[:compress] = Snappy
     key, _size = @store.write [@body]
 
     key.wont_be_nil
@@ -51,13 +47,13 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'handles existing non-compressed data' do
-    Redis::Rack::Cache.compression = true
+    @store.options[:compress] = true
     key, _size = @store.send(:slurp, [@body]) {}
 
     @store.cache.setex(key, 120, @body).must_equal('OK')
     @store.read(key).must_equal(@body)
 
-    Redis::Rack::Cache.compression = Snappy
+    @store.options[:compress] = Snappy
 
     key, _size = @store.send(:slurp, [@body]) {}
 

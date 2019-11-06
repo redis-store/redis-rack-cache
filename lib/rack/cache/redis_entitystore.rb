@@ -8,6 +8,8 @@ module Rack
   module Cache
     class EntityStore
       class Redis < self
+        MINIMUM_COMPRESSION_BYTESIZE = 1_000
+
         include RedisBase
 
         def exist?(key)
@@ -41,13 +43,13 @@ module Rack
         protected
 
         def compress(data)
-          return data unless ::Redis::Rack::Cache.compress? data
+          return data unless compress? data
 
           deflater.deflate(data)
         end
 
         def decompress(data)
-          return data unless ::Redis::Rack::Cache.compress?
+          return data unless compress?
 
           inflater.inflate(data) rescue data
         end
@@ -55,7 +57,7 @@ module Rack
         private
 
         def deflater
-          case ::Redis::Rack::Cache.compression
+          case options[:compress]
           when :deflate
             Zlib::Deflate
           when :gzip, true
@@ -63,12 +65,12 @@ module Rack
           when false
             nil
           else
-            ::Redis::Rack::Cache.compression
+            options[:compress]
           end
         end
 
         def inflater
-          case ::Redis::Rack::Cache.compression
+          case options[:compress]
           when :deflate
             Zlib::Inflate
           when :gzip, true
@@ -76,8 +78,14 @@ module Rack
           when false
             nil
           else
-            ::Redis::Rack::Cache.compression
+            options[:compress]
           end
+        end
+
+        def compress?(data = nil)
+          return options[:compress] if data.nil?
+
+          options[:compress] && data.bytesize >= MINIMUM_COMPRESSION_BYTESIZE
         end
       end
 
