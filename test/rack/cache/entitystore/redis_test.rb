@@ -9,6 +9,56 @@ end
 describe Rack::Cache::EntityStore::Redis do
   before do
     @store = ::Rack::Cache::EntityStore::Redis.new :host => 'localhost'
+    @body = File.read('test/fixtures/lorem.txt')
+  end
+
+  it 'stores raw data by default' do
+    key, _size = @store.write [@body]
+
+    key.wont_be_nil
+    @store.read(key).must_equal(@body)
+  end
+
+  it 'compresses data with deflate' do
+    @store.options[:compress] = :deflate
+    key, _size = @store.write [@body]
+
+    key.wont_be_nil
+    @store.read(key).must_equal(@body)
+  end
+
+  it 'compresses data with gzip' do
+    @store.options[:compress] = :gzip
+    key, _size = @store.write [@body]
+
+    key.wont_be_nil
+
+    @store.options[:compress] = true
+
+    @store.read(key).must_equal(@body)
+  end
+
+  it 'compresses data with custom tool' do
+    @store.options[:compress] = Snappy
+    key, _size = @store.write [@body]
+
+    key.wont_be_nil
+    @store.read(key).must_equal(@body)
+  end
+
+  it 'handles existing non-compressed data' do
+    @store.options[:compress] = true
+    key, _size = @store.send(:slurp, [@body]) {}
+
+    @store.cache.setex(key, 120, @body).must_equal('OK')
+    @store.read(key).must_equal(@body)
+
+    @store.options[:compress] = Snappy
+
+    key, _size = @store.send(:slurp, [@body]) {}
+
+    @store.cache.setex(key, 120, @body).must_equal('OK')
+    @store.read(key).must_equal(@body)
   end
 
   it 'respects the default_tll options' do
@@ -18,7 +68,7 @@ describe Rack::Cache::EntityStore::Redis do
 
   it 'properly delegates the TTL to redis' do
     @store = ::Rack::Cache::EntityStore::Redis.new({ :host => 'localhost' }, { :default_ttl => 120 })
-    key, size = @store.write(['She rode to the devil,'])
+    key, _size = @store.write(['She rode to the devil,'])
     assert @store.cache.ttl(key) <= 120
   end
 
@@ -56,7 +106,7 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'stores bodies with #write' do
-    key, size = @store.write(['My wild love went riding,'])
+    key, _size = @store.write(['My wild love went riding,'])
     key.wont_be_nil
     key.must_be :sha_like?
 
@@ -65,7 +115,7 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'takes a ttl parameter for #write' do
-    key, size = @store.write(['My wild love went riding,'], 0)
+    key, _size = @store.write(['My wild love went riding,'], 0)
     key.wont_be_nil
     key.must_be :sha_like?
 
@@ -74,19 +124,19 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'correctly determines whether cached body exists for key with #exist?' do
-    key, size = @store.write(['She rode to the devil,'])
+    key, _size = @store.write(['She rode to the devil,'])
     assert @store.exist?(key)
     assert ! @store.exist?('938jasddj83jasdh4438021ksdfjsdfjsdsf')
   end
 
   it 'can read data written with #write' do
-    key, size = @store.write(['And asked him to pay.'])
+    key, _size = @store.write(['And asked him to pay.'])
     data = @store.read(key)
     data.must_equal('And asked him to pay.')
   end
 
   it 'gives a 40 character SHA1 hex digest from #write' do
-    key, size = @store.write(['she rode to the sea;'])
+    key, _size = @store.write(['she rode to the sea;'])
     key.wont_be_nil
     key.length.must_equal(40)
     key.must_match(/^[0-9a-z]+$/)
@@ -94,7 +144,7 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'returns the entire body as a String from #read' do
-    key, size = @store.write(['She gathered together'])
+    key, _size = @store.write(['She gathered together'])
     @store.read(key).must_equal('She gathered together')
   end
 
@@ -103,7 +153,7 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'returns a Rack compatible body from #open' do
-    key, size = @store.write(['Some shells for her hair.'])
+    key, _size = @store.write(['Some shells for her hair.'])
     body = @store.open(key)
     body.must_respond_to :each
     buf = ''
@@ -118,7 +168,7 @@ describe Rack::Cache::EntityStore::Redis do
   if RUBY_VERSION < '1.9'
     it 'can store largish bodies with binary data' do
       pony = File.open(File.dirname(__FILE__) + '/pony.jpg', 'rb') { |f| f.read }
-      key, size = @store.write([pony])
+      key, _size = @store.write([pony])
       key.must_equal('d0f30d8659b4d268c5c64385d9790024c2d78deb')
       data = @store.read(key)
       data.length.must_equal(pony.length)
@@ -127,7 +177,7 @@ describe Rack::Cache::EntityStore::Redis do
   end
 
   it 'deletes stored entries with #purge' do
-    key, size = @store.write(['My wild love went riding,'])
+    key, _size = @store.write(['My wild love went riding,'])
     @store.purge(key).must_be_nil
     @store.read(key).must_be_nil
   end

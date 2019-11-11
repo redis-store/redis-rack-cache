@@ -60,6 +60,52 @@ use Rack::Cache,
   entitystore: 'redis://localhost:6380/0/entitystore'
 ```
 
+### Compression
+
+`Redis::Rack::Cache` supports data compression for entities over 1K when
+transmitting back and forth over the wire to your Redis server.
+Compressing data can improve bandwidth usage as well as RAM/storage
+consumption, and is recommended if you operate a large-scale Rails
+application.
+
+To enable this feature, pass the `:compress` option when configuring
+`Rack::Cache`:
+
+```ruby
+Rails.application.configure do
+  config.action_dispatch.rack_cache = {
+    metastore: "#{Rails.credentials.redis_url}/1",
+    entitystore: "#{Rails.credentials.redis_url}/2",
+    compress: true
+  }
+end
+```
+
+If compression is turned on, but no driver has been selected,
+`Redis::Rack::Cache` will use Ruby's internal **ZLib** integrations and
+compress entities with GZip. You can specify `:deflate` if you want to
+use the deflate algorithm, `:gzip` if you want to be specific about it,
+or a custom object that responds to `.deflate(data)` and
+`.inflate(data)` to compress/decompress data, respectively. For example,
+you can use Google's [Snappy](http://google.github.io/snappy/) for
+[ludicrous-speed](https://www.youtube.com/watch?v=ygE01sOhzz0)
+compression and decompression like this:
+
+```ruby
+Rails.application.configure do
+  config.action_dispatch.rack_cache = {
+    metastore: "#{Rails.credentials.redis_url}/1",
+    entitystore: "#{Rails.credentials.redis_url}/2",
+    compress: Snappy
+  }
+end
+```
+
+**NOTE:** Since metadata would have to be marshalled before compression
+in order to rehydrate it back into an object, only data stored in the
+EntityStore is compressed for now. We'd love your feedback though,
+let us know if there's a good use case for MetaStore compression!
+
 ## Development
 
 First, get the project set up on your local machine:
@@ -70,7 +116,7 @@ cd redis-rack-cache
 bundle install
 ```
 
-You can run the following command to execute the test suite:
+You can run the following command to run the test suite:
 
 ```bash
 bundle exec rake test
