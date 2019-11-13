@@ -16,8 +16,8 @@ module Rack
       end
 
       module ClassMethods
-        def resolve(uri)
-          new ::Redis::Store::Factory.resolve(uri.to_s)
+        def resolve(uri, options = {})
+          new ::Redis::Store::Factory.resolve(uri.to_s), options
         end
       end
 
