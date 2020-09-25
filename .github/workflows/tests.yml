@@ -20,7 +20,7 @@ jobs:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:
       - uses: actions/checkout@v1
-      - uses: actions/setup-ruby@v1
+      - uses: actions/setup-ruby@v1.1.1
         with:
           ruby-version: ${{ matrix.ruby }}
       - run: bundle install
