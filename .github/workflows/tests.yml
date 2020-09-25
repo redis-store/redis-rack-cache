@@ -12,10 +12,16 @@ jobs:
           - 2.6
           - 2.7
         gemfile:
-          - gemfiles/rack_cache_1.6.gemfile
-          - gemfiles/rack_cache_1.7.gemfile
+          - rack_cache_1.6
+          - rack_cache_1.7
+          - rack_cache_1.8
+          - rack_cache_1.9
+          - rack_cache_1.10
+          - rack_cache_1.11
+          - rack_cache_1.12
+          - rack_cache_latest
     env:
-      BUNDLE_GEMFILE: ${{ matrix.gemfile }}
+      BUNDLE_GEMFILE: gemfiles/${{ matrix.gemfile }}.gemfile
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-ruby@v1.1.1
