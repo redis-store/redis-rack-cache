@@ -1,0 +1,41 @@
+name: Changelog
+on:
+  release: [released]
+jobs:
+  generate:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        name: Checkout Repository
+
+      - id: get_version
+        name: Obtain Version from Current Tag
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - id: generate_changelog
+        name: Generate Changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: write
+        name: Write CHANGELOG.md
+        uses: finnp/create-file-action@master
+        with:
+          FILE_NAME: CHANGELOG.md
+          FILE_DATA: ${{ steps.generate_changelog.outputs.changelog }}
+
+      - id: commit
+        name: Commit Changelog
+        run: |
+          git config --local user.email actions@github.com
+          git config --local user.name GitHub
+          git add CHANGELOG.md
+          git commit -am "Release ${{ steps.get_version.outputs.version }}"
+
+      - id: push
+        name: Push Changelog Updates to GitHub
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,31 @@
+name: Publish
+on:
+  push:
+    tags: [v*]
+jobs:
+  build:
+    name: Release New Version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v1
+
+      - name: Obtain Version from Current Tag
+        id: info
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Generate Release Notes
+        id: notes
+        uses: heinrichreimer/github-changelog-generator-action@v2.1.1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          onlyLastTag: true
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.info.outputs.version }}
+          release_name: ${{ steps.get_version.outputs.version }}
+          body: ${{ steps.notes.outputs.changelog }}
